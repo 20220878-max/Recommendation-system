@@ -1,1 +1,7 @@
-echo "node_modules/" >> .gitignore
+venv/
+__pycache__/
+*.pyc
+.env
+*.json
+node_modules/
+.DS_Store
