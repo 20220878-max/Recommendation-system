@@ -20,6 +20,22 @@ class User(Base):
     lost_items  = relationship("LostItem", back_populates="user")
     found_items = relationship("FoundItem", back_populates="user")
 
+# 카테고리 Enum (공통)
+CATEGORY_ENUM = Enum(
+    "지갑/카드",
+    "가방",
+    "의류/잡화",
+    "휴대폰/전자기기",
+    "이어폰",
+    "여권/신분증",
+    "악세사리",
+    "생활용품",
+    "화장품",
+    "문구류",
+    "기타",
+    name="item_category"
+)
+
 # 분실물 테이블
 class LostItem(Base):
     __tablename__ = "lost_items"
@@ -27,10 +43,11 @@ class LostItem(Base):
     id          = Column(Integer, primary_key=True, autoincrement=True)
     user_id     = Column(Integer, ForeignKey("users.id"), nullable=False)
     title       = Column(String(100), nullable=False)
+    category    = Column(CATEGORY_ENUM, nullable=False)
     description = Column(Text)
     location    = Column(String(100))
     lost_at     = Column(DateTime)
-    status = Column(Enum("waiting", "matched", "resolved", name="item_status"), default="waiting")
+    status      = Column(Enum("waiting", "matched", "resolved", name="lost_item_status"), default="waiting")
     created_at  = Column(DateTime, default=datetime.utcnow)
     user   = relationship("User", back_populates="lost_items")
     images = relationship("ItemImage", back_populates="lost_item")
@@ -41,10 +58,11 @@ class FoundItem(Base):
 
     id          = Column(Integer, primary_key=True, autoincrement=True)
     user_id     = Column(Integer, ForeignKey("users.id"), nullable=False)
+    category    = Column(CATEGORY_ENUM, nullable=False)
+    description = Column(Text)
     location    = Column(String(100))
     found_at    = Column(DateTime)
-    description = Column(Text)
-    status = Column(Enum("waiting", "matched", "resolved", name="item_status"), default="waiting")    
+    status      = Column(Enum("waiting", "matched", "resolved", name="found_item_status"), default="waiting")
     created_at  = Column(DateTime, default=datetime.utcnow)
     user   = relationship("User", back_populates="found_items")
     images = relationship("ItemImage", back_populates="found_item")

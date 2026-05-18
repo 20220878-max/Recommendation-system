@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
+from typing import Optional
 from database import get_db
-from schemas import LostItemCreate, LostItemUpdate, LostItemResponse
+from schemas import LostItemCreate, LostItemUpdate, LostItemResponse, ItemCategory
 import crud, shutil, uuid, os
 
 router = APIRouter(prefix="/lost-items", tags=["분실물"])
@@ -14,8 +15,8 @@ def create(user_id: int, data: LostItemCreate, db: Session = Depends(get_db)):
     return crud.create_lost_item(db, user_id, data)
 
 @router.get("/", response_model=list[LostItemResponse])
-def list_items(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    return crud.get_lost_items(db, skip, limit)
+def list_items(skip: int = 0, limit: int = 20, category: Optional[ItemCategory] = None, db: Session = Depends(get_db)):
+    return crud.get_lost_items(db, skip, limit, category)
 
 @router.get("/{item_id}", response_model=LostItemResponse)
 def get_item(item_id: int, db: Session = Depends(get_db)):
