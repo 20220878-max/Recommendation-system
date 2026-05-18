@@ -5,3 +5,4 @@ __pycache__/
 *.json
 node_modules/
 .DS_Store.DS_Store
+lost_item_project/
