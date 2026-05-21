@@ -6,7 +6,7 @@ print(os.listdir("."))
 
 
 # %%
-def show_rating_file(filename, n=10):
+def show_rating_file(filename,n=10):
     print(f"\n===== {filename} 미리보기 =====")
     print("user_id\titem_id\trating\ttimestamp")
     print("-" * 45)
