@@ -1,0 +1,4 @@
+model,parameter_name,parameter_value,topK,user_group,user_count,RMSE,MAE,Coverage
+MF,latent_dim,20,10,Low,308,1.0266,0.8136,0.0386
+MF,latent_dim,20,10,Medium,253,0.9315,0.7347,0.0541
+MF,latent_dim,20,10,High,354,0.9067,0.7135,0.0916
