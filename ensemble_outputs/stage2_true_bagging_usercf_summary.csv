@@ -1,0 +1,6 @@
+﻿model,base_model,k,n_bags,rows,RMSE,MAE
+TrueBagging_UserCF,UserCF_KNNBasic_cosine,50,5,13586,1.0208,0.8117
+TrueBagging_UserCF,UserCF_KNNBasic_cosine,100,5,13586,1.0213,0.8141
+TrueBagging_UserCF,UserCF_KNNBasic_cosine,20,5,13586,1.0269,0.8154
+TrueBagging_UserCF,UserCF_KNNBasic_cosine,10,5,13586,1.0372,0.8229
+TrueBagging_UserCF,UserCF_KNNBasic_cosine,5,5,13586,1.06,0.8406

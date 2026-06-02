@@ -1,0 +1,2 @@
+﻿model,k,w_usercf,w_mf,RMSE,MAE,rows
+Weighted_Ensemble,50,0.1,0.9,0.9183,0.7244,13586

@@ -1,0 +1,2 @@
+﻿model,base_model,k,n_rounds,boost_factor,rows,RMSE,MAE
+BoostingStyle_UserCF,UserCF_KNNBasic_cosine,50,5,1.5,13586,1.0175,0.8108

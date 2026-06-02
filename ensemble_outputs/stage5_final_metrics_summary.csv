@@ -1,0 +1,6 @@
+﻿model,file,topK,users,RMSE,MAE,Coverage,Novelty,Serendipity,Diversity
+Weighted_Ensemble_best,ensemble_outputs\valid_stage3_weighted_ensemble_best.csv,10,915,0.9183,0.7244,0.4994,2.699,0.914,0.7248
+MF_best_k50,outputs\valid_mf_k50.csv,10,915,0.9192,0.7232,0.5059,2.707,0.9142,0.7252
+UserCF_best_k50,outputs\valid_user_cf_k50 (1).csv,10,915,1.0156,0.8053,0.481,2.6571,0.9122,0.7255
+BoostingStyle_UserCF,ensemble_outputs\valid_stage4_boosting_usercf.csv,10,915,1.0175,0.8108,0.4893,2.6776,0.9129,0.7255
+TrueBagging_UserCF_k50,ensemble_outputs\valid_true_bagging_usercf_k50.csv,10,915,1.0208,0.8117,0.4869,2.6756,0.9144,0.7249
