@@ -5,6 +5,13 @@ __pycache__/
 ml-100k/
 ml-100k*.zip
 ensemble_outputs/
+check_merge.py
+stage1_baseline_summary.py
+stage3_weighted_ensemble.py
+stage4_boosting_usercf.py
+stage5_non_accuracy_metrics.py
+stage6_pairing_grouping_analysis.py
+true_bagging_usercf.py
 .vscode/
 # 결과 폴더
 outputs/
