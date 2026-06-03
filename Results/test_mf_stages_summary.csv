@@ -1,6 +1,0 @@
-stage,description,data,RMSE,MAE
-Baseline,전체 평균,ua.test,1.122,0.945
-Stage 1,Basic MF (P·Q),ua.test,1.0087,0.8098
-Stage 2,+ L2 정규화,ua.test,0.9987,0.8036
-Stage 3,"+ Bias (μ,bu,bi)",ua.test,0.956,0.7559
-Stage 4,+ Implicit (SVD++),ua.test,0.9437,0.7484
