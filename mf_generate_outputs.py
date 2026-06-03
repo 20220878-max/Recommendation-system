@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 import os
 import numpy as np
 import pandas as pd
@@ -105,7 +109,7 @@ for k in K_VALUES:
         'true_rating': vr.astype(int),
         'pred_rating': np.round(val_pred, 4),
     }).sort_values(['user_id', 'item_id']).reset_index(drop=True)
-    pred_df.to_csv(f'outputs/valid_mf_k{k}.csv', index=False)
+    pred_df.to_csv(f'outputs/valid_mf_k{k}.csv', index=False, encoding='utf-8-sig')
 
     rmse = np.sqrt(np.mean((val_pred - vr) ** 2))
     mae  = np.mean(np.abs(val_pred - vr))
@@ -124,7 +128,7 @@ for k in K_VALUES:
             rec_rows.append([u + 1, rank, it + 1,
                              round(float(np.clip(scores[it], 1, 5)), 4)])
     recs_df = pd.DataFrame(rec_rows, columns=['user_id', 'rank', 'item_id', 'pred_rating'])
-    recs_df.to_csv(f'outputs/valid_mf_recs_k{k}.csv', index=False)
+    recs_df.to_csv(f'outputs/valid_mf_recs_k{k}.csv', index=False, encoding='utf-8-sig')
 
     cov, ser, nov, div = compute_beyond_accuracy(recommendations, Q, TOPK)
 
@@ -142,7 +146,7 @@ for k in K_VALUES:
         saved_k20 = {'recs_df': recs_df.copy()}
 
 results_df = pd.DataFrame(results)
-results_df.to_csv('outputs/mf_results_table.csv', index=False)
+results_df.to_csv('outputs/mf_results_table.csv', index=False, encoding='utf-8-sig')
 print("\n[MF 결과표]")
 print(results_df.to_string(index=False))
 print("저장: outputs/mf_results_table.csv")
@@ -180,7 +184,7 @@ for grp in ['Low', 'Medium', 'High']:
     })
 
 group_df = pd.DataFrame(group_rows)
-group_df.to_csv('outputs/mf_grouping_table.csv', index=False)
+group_df.to_csv('outputs/mf_grouping_table.csv', index=False, encoding='utf-8-sig')
 print("\n[MF Grouping (k=20)]")
 print(group_df.to_string(index=False))
 print("저장: outputs/mf_grouping_table.csv")

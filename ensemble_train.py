@@ -7,8 +7,9 @@ import numpy as np
 import pandas as pd
 
 
-K_LIST = [5, 10, 20, 50, 100]
-WEIGHT_LIST = [round(x, 1) for x in np.arange(0.0, 1.01, 0.1)]  # UserCF 비중
+USERCF_K_LIST = [5, 10, 20, 50, 100]
+MF_K_LIST = [5, 10, 20, 50, 100]
+WEIGHT_LIST = [round(x, 1) for x in np.arange(0.0, 1.01, 0.1)]
 
 OUT_DIR = Path("outputs")
 ENS_DIR = Path("ensemble_outputs")
@@ -24,31 +25,26 @@ def mae(y_true, y_pred):
 
 
 def find_prediction_file(model, k):
-    # k=5가 k50을 잡는 문제 방지 위해 exact path 먼저 확인
     if model == "UserCF":
-        exact_candidates = [
+        candidates = [
             OUT_DIR / f"valid_user_cf_k{k}.csv",
             OUT_DIR / f"valid_user_cf_k{k} (1).csv",
             OUT_DIR / f"valid_user_cf_k{k} (2).csv",
             OUT_DIR / f"valid_user_cf_k{k} (3).csv",
         ]
-
         glob_pattern = f"valid_user_cf_k{k} (*).csv"
-
     elif model == "MF":
-        exact_candidates = [
+        candidates = [
             OUT_DIR / f"valid_mf_k{k}.csv",
             OUT_DIR / f"valid_mf_k{k} (1).csv",
             OUT_DIR / f"valid_mf_k{k} (2).csv",
             OUT_DIR / f"valid_mf_k{k} (3).csv",
         ]
-
         glob_pattern = f"valid_mf_k{k} (*).csv"
-
     else:
         raise ValueError("model은 'UserCF' 또는 'MF'만 가능합니다.")
 
-    for path in exact_candidates:
+    for path in candidates:
         if path.exists() and "recs" not in path.name.lower():
             return path
 
@@ -64,52 +60,46 @@ def find_prediction_file(model, k):
 
 def load_pred_file(path, pred_name):
     df = pd.read_csv(path, sep=None, engine="python")
+    df.columns = [str(c).replace("﻿", "").strip() for c in df.columns]
+
+    unnamed = [c for c in df.columns if str(c).lower().startswith("unnamed")]
+    if unnamed:
+        df = df.drop(columns=unnamed)
 
     required_cols = {"user_id", "item_id", "true_rating", "pred_rating"}
     missing = required_cols - set(df.columns)
 
-    if missing:
-        raise ValueError(f"{path}에 필요한 컬럼이 없습니다: {missing}")
+    if missing and len(df.columns) == 4:
+        df.columns = ["user_id", "item_id", "true_rating", "pred_rating"]
 
     df = df[["user_id", "item_id", "true_rating", "pred_rating"]].copy()
     df = df.rename(columns={"pred_rating": pred_name})
+    df["user_id"] = df["user_id"].astype(int)
+    df["item_id"] = df["item_id"].astype(int)
+    df["true_rating"] = df["true_rating"].astype(float)
+    df[pred_name] = df[pred_name].astype(float)
 
     return df
 
 
-def merge_usercf_mf(k):
-    usercf_path = find_prediction_file("UserCF", k)
-    mf_path = find_prediction_file("MF", k)
-
-    print("UserCF:", usercf_path)
-    print("MF    :", mf_path)
+def merge_usercf_mf(usercf_k, mf_k):
+    usercf_path = find_prediction_file("UserCF", usercf_k)
+    mf_path = find_prediction_file("MF", mf_k)
 
     usercf_df = load_pred_file(usercf_path, "usercf_pred")
     mf_df = load_pred_file(mf_path, "mf_pred")
 
-    merged = pd.merge(
-        usercf_df,
-        mf_df,
-        on=["user_id", "item_id"],
-        how="inner",
-        suffixes=("_usercf", "_mf")
-    )
+    merged = pd.merge(usercf_df, mf_df, on=["user_id", "item_id"],
+                      how="inner", suffixes=("_usercf", "_mf"))
 
     diff = (merged["true_rating_usercf"] != merged["true_rating_mf"]).sum()
     if diff > 0:
-        raise ValueError(f"k={k}: true_rating 불일치 {diff}개 발견")
+        raise ValueError(f"true_rating 불일치: UserCF k={usercf_k}, MF k={mf_k}, diff={diff}")
 
     merged["true_rating"] = merged["true_rating_usercf"]
     merged = merged[["user_id", "item_id", "true_rating", "usercf_pred", "mf_pred"]].copy()
 
     return merged
-
-
-def make_weighted_prediction(df, w_user):
-    out = df.copy()
-    out["pred_rating"] = w_user * out["usercf_pred"] + (1 - w_user) * out["mf_pred"]
-    out["pred_rating"] = out["pred_rating"].clip(1, 5)
-    return out
 
 
 def evaluate(df):
@@ -121,63 +111,54 @@ def evaluate(df):
 
 
 def main():
-    summary_rows = []
-
+    rows = []
     best_rmse = float("inf")
     best_df = None
     best_info = None
 
-    for k in K_LIST:
-        print(f"\nStage 3 Weighted Ensemble k={k}")
-        merged = merge_usercf_mf(k)
-        print("merged rows:", len(merged))
+    for usercf_k in USERCF_K_LIST:
+        for mf_k in MF_K_LIST:
+            merged = merge_usercf_mf(usercf_k, mf_k)
+            print(f"\nPair: UserCF k={usercf_k}, MF k={mf_k} ({len(merged)} rows)")
 
-        for w_user in WEIGHT_LIST:
-            w_mf = round(1 - w_user, 1)
+            for w_usercf in WEIGHT_LIST:
+                w_mf = round(1 - w_usercf, 1)
 
-            weighted_df = make_weighted_prediction(merged, w_user)
-            metrics = evaluate(weighted_df)
+                temp = merged.copy()
+                temp["pred_rating"] = (
+                    w_usercf * temp["usercf_pred"] + w_mf * temp["mf_pred"]
+                ).clip(1, 5)
 
-            row = {
-                "model": "Weighted_Ensemble",
-                "k": k,
-                "w_usercf": w_user,
-                "w_mf": w_mf,
-                **metrics
-            }
+                metrics = evaluate(temp)
+                row = {
+                    "usercf_k": usercf_k, "mf_k": mf_k,
+                    "w_usercf": w_usercf, "w_mf": w_mf,
+                    **metrics
+                }
+                rows.append(row)
 
-            summary_rows.append(row)
+                if metrics["RMSE"] < best_rmse:
+                    best_rmse = metrics["RMSE"]
+                    best_df = temp.copy()
+                    best_info = row.copy()
 
-            print(
-                f"w_usercf={w_user:.1f}, w_mf={w_mf:.1f} | "
-                f"RMSE={metrics['RMSE']:.4f}, MAE={metrics['MAE']:.4f}"
-            )
+    summary_df = pd.DataFrame(rows).sort_values(["RMSE", "MAE"]).reset_index(drop=True)
 
-            if metrics["RMSE"] < best_rmse:
-                best_rmse = metrics["RMSE"]
-                best_df = weighted_df.copy()
-                best_info = row.copy()
+    summary_path = ENS_DIR / "ensemble_train_sweep.csv"
+    best_pred_path = ENS_DIR / "ensemble_train_best_pred.csv"
+    best_config_path = ENS_DIR / "ensemble_train_best_config.csv"
 
-    summary_df = pd.DataFrame(summary_rows)
-    summary_df = summary_df.sort_values(["RMSE", "MAE"]).reset_index(drop=True)
-
-    summary_path = ENS_DIR / "stage3_weighted_ensemble_summary.csv"
     summary_df.to_csv(summary_path, index=False, encoding="utf-8-sig")
+    best_df[["user_id", "item_id", "true_rating", "usercf_pred", "mf_pred", "pred_rating"]].to_csv(
+        best_pred_path, index=False, encoding="utf-8-sig"
+    )
+    pd.DataFrame([best_info]).to_csv(best_config_path, index=False, encoding="utf-8-sig")
 
-    best_pred_path = ENS_DIR / "valid_stage3_weighted_ensemble_best.csv"
-    best_df[
-        ["user_id", "item_id", "true_rating", "usercf_pred", "mf_pred", "pred_rating"]
-    ].to_csv(best_pred_path, index=False, encoding="utf-8-sig")
-
-    best_config_df = pd.DataFrame([best_info])
-    best_config_path = ENS_DIR / "stage3_weighted_ensemble_best_config.csv"
-    best_config_df.to_csv(best_config_path, index=False, encoding="utf-8-sig")
-
-    print("\n[Weighted Ensemble Summary Top 10]")
+    print("\n[Top 10 조합]")
     print(summary_df.head(10))
 
     print("\n[Best Config]")
-    print(best_config_df)
+    print(pd.DataFrame([best_info]))
 
     print("\n저장 완료:")
     print(f"- {summary_path}")
