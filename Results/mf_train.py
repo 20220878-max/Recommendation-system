@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 """
 mf_train.py — SVD++ 단계적 학습 스크립트
 Baseline → Stage 1 (Basic MF) → Stage 2 (+L2) → Stage 3 (+Bias) → Stage 4 (+Implicit/SVD++)
@@ -11,7 +15,7 @@ import pandas as pd
 # ============================================
 # 하이퍼파라미터
 # ============================================
-DATA_DIR = 'ml-100k'
+DATA_DIR = 'raw/ml-100k'
 N_USERS = 943
 N_ITEMS = 1682
 SEED = 42

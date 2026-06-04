@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
 """
 mf_test.py — SVD++ 최종 평가 스크립트
 CSV로 저장된 4단계 모델을 불러와서 ua.test로 최종 RMSE/MAE 측정
@@ -10,7 +14,7 @@ import pandas as pd
 # ============================================
 # 설정
 # ============================================
-DATA_DIR = 'ml-100k'
+DATA_DIR = 'raw/ml-100k'
 N_USERS = 943
 N_ITEMS = 1682
 K = 50
