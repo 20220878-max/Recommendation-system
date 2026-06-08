@@ -1,3 +1,6 @@
+# 같은 k끼리 가중치 바꿔가며 탐색
+
+
 # -*- coding: utf-8 -*-
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
@@ -24,7 +27,7 @@ def mae(y_true, y_pred):
 
 
 def find_prediction_file(model, k):
-    # k=5가 k50을 잡는 문제 방지 위해 exact path 먼저 확인
+    # k=5가 k50을 잡는 문제 방지 위해 exact path 먼저 확인함
     if model == "UserCF":
         exact_candidates = [
             OUT_DIR / f"valid_user_cf_k{k}.csv",

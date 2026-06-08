@@ -1,3 +1,6 @@
+# 부스팅 - 틀린 샘플 더 학습시키기
+
+
 # -*- coding: utf-8 -*-
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
@@ -11,7 +14,7 @@ from surprise import Dataset, Reader, KNNBasic
 
 SEED = 42
 TRAIN_RATIO = 0.85
-K = 50  # Stage 1~3에서 k=50이 가장 좋았으므로
+K = 50  # Stage 1~3에서 k=50이 가장 좋았기 때문에 고정함
 N_ROUNDS = 5
 BOOST_FACTOR = 1.5
 

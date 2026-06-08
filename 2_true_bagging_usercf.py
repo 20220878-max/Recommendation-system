@@ -1,3 +1,6 @@
+# 배깅 - 부트스트랩으로 25개 모델 돌리기
+
+
 # -*- coding: utf-8 -*-
 import sys
 sys.stdout.reconfigure(encoding='utf-8')

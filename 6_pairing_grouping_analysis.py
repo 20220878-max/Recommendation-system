@@ -1,3 +1,6 @@
+# 사용자 활동량별로 나눠서 성능 비교
+
+
 # -*- coding: utf-8 -*-
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
@@ -36,7 +39,7 @@ def evaluate(df, pred_col="pred_rating"):
 
 
 def find_prediction_file(model, k):
-    # k=5가 k50을 잡는 문제 방지 위해 exact path 먼저 확인
+    # k=5가 k50을 잡는 문제 방지 위해 exact path 먼저 확인함
 
     if model == "UserCF":
         candidates = [
@@ -316,7 +319,7 @@ def evaluate_by_group(model_name, pred_path, user_groups):
             **metrics
         })
 
-    # 전체도 추가
+    # 전체 기준
     metrics_all = evaluate(df)
 
     rows.append({

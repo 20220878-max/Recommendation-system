@@ -1,3 +1,6 @@
+# 커버리지, 의외성, 참신성, 다양성 계산
+
+
 # -*- coding: utf-8 -*-
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
